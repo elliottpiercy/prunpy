@@ -4,9 +4,9 @@ import utils.tf_utils.saver
 import utils.prune_utils.initalise
 
 
-class fully_connected():
+class model():
     
-    def __init__(self, network_config):
+    def __init__(self, network_config, pruning_config):
             
         
         if 0 in network_config['layer_shapes']:
@@ -16,20 +16,23 @@ class fully_connected():
         self.layer_shapes = network_config['layer_shapes']
         self.n_classes = network_config['n_classes']
         self.optimiser = network_config['optimiser']
-        self.threshold = network_config['weight_threshold']
         self.activation = network_config['activation']
+        
         
         self.weights = {}
         self.masks = {}
         self.biases = {}
         self.layers = {}
+        
+        
         self.network = None
         self.x_placeholder = None
         self.y_placeholder = None
         self.num_examples = None
         
+        
         self.seed = 1
-        self.pruning_schedule = utils.prune_utils.initalise.scheduler(network_config['pruning_schedule'], {'threshold':network_config['weight_threshold']})
+        self.pruning_schedule = utils.prune_utils.initalise.scheduler(pruning_config)
         
         
         
@@ -65,6 +68,8 @@ class fully_connected():
         
     # Intialise layers
     def initialise(self):
+        
+        tf.reset_default_graph()
         
         self.initialise_placeholders()
         self.initialise_weights()
@@ -112,21 +117,25 @@ class fully_connected():
                 
                 dataset.train._reset_batch_count()
                 
+                utils.tf_utils.saver.save_weights(self.weights, epoch)
+                utils.tf_utils.saver.save_biases(self.biases, epoch)
+                    
                 if epoch% save_rate == 0:
                     utils.tf_utils.saver.save_model(saver, sess, epoch)
                 
                 avg_cost = 0
                 
-                if self.threshold != 0:
-                    utils.tf_utils.saver.save_weights(self.weights, epoch)
-                    utils.tf_utils.saver.save_biases(self.biases, epoch)
-                    
-                    self.masks = self.pruning_schedule.update_mask(self.weights, lbound=-self.threshold, ubound=self.threshold)
+                self.masks = self.pruning_schedule.apply(self, sess)
+                
+#                 if self.pruning_schedule.threshold != 0:
 
-                    for ID in self.masks.keys():
-                        new_weights = self.masks[ID] * self.weights[ID]
-                        sess.run(self.weights[ID].assign(new_weights))
-        
+#                     self.masks = self.pruning_schedule.update_mask(self.weights, lbound=-self.pruning_schedule.threshold, ubound=self.pruning_schedule.threshold)
+
+#                     for ID in self.masks.keys():
+#                         new_weights = self.masks[ID] * self.weights[ID]
+#                         sess.run(self.weights[ID].assign(new_weights))
+                        
+                        
         
                 for batch in range(dataset.train.get_number_of_batches(batch_size)):
                     
@@ -145,6 +154,5 @@ class fully_connected():
                     avg_cost += c /  int(self.num_examples/ batch_size)
                 print("Epoch:", '%04d' % (epoch+1), "cost={:.9f}".format(avg_cost))
         
-
 
 
