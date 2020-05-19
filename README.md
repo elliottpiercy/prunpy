@@ -1,2 +1,2 @@
 # prunpy
-Neural network pruning compliter
+Neural network pruning complier
