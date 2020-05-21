@@ -19,6 +19,12 @@ class model():
         self.activation = network_config['activation']
         
         
+        if 'pretrained_path' in list(network_config.keys()):
+            self.pretrained_path = network_config['pretrained_path']
+        else: 
+            self.pretrained_path = None
+        
+        
         self.weights = {}
         self.masks = {}
         self.biases = {}
@@ -111,6 +117,11 @@ class model():
         
         with tf.Session() as sess:
             sess.run(init)
+            
+            
+            if self.pretrained_path != None:
+#                 saver.restore(, path)
+                utils.tf_utils.saver.load_model(saver, sess, self.pretrained_path)
 
             # Training cycle
             for epoch in range(epochs):
@@ -124,19 +135,9 @@ class model():
                     utils.tf_utils.saver.save_model(saver, sess, epoch)
                 
                 avg_cost = 0
+                self.masks = self.pruning_schedule.apply(self, sess, epoch)
                 
-                self.masks = self.pruning_schedule.apply(self, sess)
                 
-#                 if self.pruning_schedule.threshold != 0:
-
-#                     self.masks = self.pruning_schedule.update_mask(self.weights, lbound=-self.pruning_schedule.threshold, ubound=self.pruning_schedule.threshold)
-
-#                     for ID in self.masks.keys():
-#                         new_weights = self.masks[ID] * self.weights[ID]
-#                         sess.run(self.weights[ID].assign(new_weights))
-                        
-                        
-        
                 for batch in range(dataset.train.get_number_of_batches(batch_size)):
                     
                     batch_x, batch_y = dataset.train.next_batch(batch_size)

@@ -24,5 +24,5 @@ def save_model(saver, sess, epoch):
 
     
 # Restore model
-def load_model(saver, path):
-    return saver.restore(saver, path)
+def load_model(saver, sess, path):
+    return saver.restore(sess, path)
