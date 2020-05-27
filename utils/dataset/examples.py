@@ -26,5 +26,6 @@ def get_dataset(dataset, normalise = True, one_hot_encode = True):
         y_train = enc.transform(y_train.reshape((-1, 1))).toarray()
         y_test = enc.transform(y_test.reshape((-1, 1))).toarray()
         
+        
     return (x_train, y_train), (x_test, y_test)
 

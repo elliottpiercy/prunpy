@@ -1,5 +1,6 @@
+import json
 import numpy as np
-
+import tensorflow as tf
 
 """
 Magnitude weight pruning schedule - Mask all weights that are within the threshold.
@@ -8,55 +9,56 @@ EG: threshold = 0.1. ALl weights between -0.1 and 0.1 are masked with 0s
 
 """
 
+class schedule(tf.keras.callbacks.Callback):
+    
 
-class schedule():
-    
-    
+    # Set pruning configuration
     def __init__(self, pruning_config):
         self.pruning_config = pruning_config
-        self.threshold = pruning_config['threshold']
     
     
-    # Update mask for weight vector based on new weights
-    def update_mask(self, weights):
+    def on_epoch_end(self, epoch, logs=None):
         
-        # Return locations where value is between bounds
-        def abs_thresholding(data):
-            return np.where(np.abs(data) < self.pruning_config['threshold'])
-#             return np.where(np.logical_and(data >= -self.pruning_config['threshold'], data <= self.pruning_config['threshold']))
-        
-        
-        masks = {}
-        for ID in weights.keys():
-            
-            layer_weights = weights[ID].eval()
-            locations = abs_thresholding(layer_weights)
-            mask = np.ones(layer_weights.shape)
+        # Update mask for weight vector based on new weights
+        def get_mask(weights):
+
+            # Return locations where value is between bounds
+            def abs_thresholding(data):
+                return np.where(np.abs(data) < self.pruning_config['threshold'])
+
+            mask = np.ones(weights.shape)
+            locations = abs_thresholding(weights)
             mask[locations] = 0
-            masks[ID] = mask
-            
-        return masks
-    
-    
-    # Apply magnitude pruning schedule
-    def apply(self, model, sess, epoch):
+            return mask
+
+
+        # Apply magnitude pruning schedule
+        def apply_mask(weights, mask, epoch):
+            return weights * mask
         
+        
+
         # If the threshold is 0 -- ignore and dont prune
         if self.pruning_config['threshold'] != 0 and epoch >= self.pruning_config['epoch_threshold']:
-            masks = self.update_mask(model.weights)
+            
+            # Create new weight matrix and set new weights
+            new_weights = []
+            masks = {}
+            for idx, weights in enumerate(self.model.get_weights()):
 
-            for ID in masks.keys():
-                new_weights = model.masks[ID] * model.weights[ID]
-                sess.run(model.weights[ID].assign(new_weights))
+
+                layer_mask = get_mask(weights)
+#                 masks[idx] = layer_mask.tolist()
                 
-            return masks
-        
-        else:
-            return model.masks
+                pruned_weights = apply_mask(weights, layer_mask, epoch)
+                new_weights.append(pruned_weights)
 
-    
-    
-        
+                
+#             with open("parameters/masks/test.json", "w") as write_file:
+#                 json.dump(masks, write_file)
+
+            self.model.set_weights(new_weights)
+
         
         
         

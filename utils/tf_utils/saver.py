@@ -1,5 +1,5 @@
 import numpy as np
-
+import tensorflow as tf
 
 # Write weights to file
 def save_weights(weights, epoch):
@@ -18,11 +18,17 @@ def save_biases(biases, epoch):
 
 
 # Write model to file
-def save_model(saver, sess, epoch):
-    save_path = saver.save(sess, "./tmp/model.ckpt", global_step=epoch)
-
+def save_callback(filepath, save_frequency):
+    
+    print(save_frequency)
+    save_callback = tf.keras.callbacks.ModelCheckpoint(filepath, monitor='val_accuracy', verbose=1,
+                                                        save_best_only=False, save_weights_only=False,
+                                                        save_frequency=save_frequency)
+    return save_callback
 
     
 # Restore model
-def load_model(saver, sess, path):
-    return saver.restore(sess, path)
+def load_model(filepath):
+    return tf.keras.models.load_model(filepath, custom_objects=None, compile=True)
+
+
