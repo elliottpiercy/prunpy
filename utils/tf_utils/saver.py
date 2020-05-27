@@ -20,7 +20,6 @@ def save_biases(biases, epoch):
 # Write model to file
 def save_callback(filepath, save_frequency):
     
-    print(save_frequency)
     save_callback = tf.keras.callbacks.ModelCheckpoint(filepath, monitor='val_accuracy', verbose=1,
                                                         save_best_only=False, save_weights_only=False,
                                                         save_frequency=save_frequency)

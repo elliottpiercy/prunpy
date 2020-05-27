@@ -55,7 +55,7 @@ class model():
         opt = utils.tf_utils.build_network.optimiser(self.network_config['optimiser']).get_optimiser()
         self.optimiser = opt
         
-        loss_fn = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
+        loss_fn = tf.keras.losses.CategoricalCrossentropy(from_logits=True)
 #         loss_fn = utils.tf_utils.build_network.loss(self.network_config['loss']).get_loss_fn()
         self.loss = loss_fn
         
