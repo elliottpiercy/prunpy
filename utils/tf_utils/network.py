@@ -65,14 +65,14 @@ class model():
         
         
     # Train model
-    def train(self, dataset):
+    def train(self, train_dataset):
         
         filepath="tmp/model-{epoch:02d}.hdf5"
         saver_callback = utils.tf_utils.saver.save_callback(filepath, self.network_config['save_rate'])
         
-        history = self.network.fit(dataset.train.x, dataset.train.y,
+        history = self.network.fit(train_dataset,
                                    epochs=self.network_config['epochs'],
-                                   batch_size = self.network_config['batch_size'],
+#                                    batch_size = self.network_config['batch_size'],
                                    callbacks=[self.pruning_schedule, saver_callback])
         
         
