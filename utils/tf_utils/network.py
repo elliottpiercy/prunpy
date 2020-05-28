@@ -42,6 +42,7 @@ class model():
             self.network =  utils.tf_utils.fully_connected.model(self.network_config)
             
             
+            
     # Load pretrained weights        
     def load_weights(self, pretrained_model):
         self.network.load_weights(pretrained_model)
@@ -55,8 +56,7 @@ class model():
         opt = utils.tf_utils.build_network.optimiser(self.network_config['optimiser']).get_optimiser()
         self.optimiser = opt
         
-        loss_fn = tf.keras.losses.CategoricalCrossentropy(from_logits=True)
-#         loss_fn = utils.tf_utils.build_network.loss(self.network_config['loss']).get_loss_fn()
+        loss_fn = utils.tf_utils.build_network.loss(self.network_config['loss']).get_loss_fn()
         self.loss = loss_fn
         
         self.network.compile(optimizer=opt,
