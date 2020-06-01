@@ -15,24 +15,32 @@ class schedule(tf.keras.callbacks.Callback):
     # Set pruning configuration
     def __init__(self, pruning_config):
         self.pruning_config = pruning_config
-    
-    
+            
+        if pruning_config['threshold'] < 0  or pruning_config['threshold'] > 1:
+            raise ValueError('Percentage threshold must be between 0 and 1 (inclusive)')
+
+            
     def on_epoch_end(self, epoch, logs=None):
         
         # Update mask for weight vector based on new weights
         def get_mask(weights):
 
-            # Return bottom n% of weight magnitudes
+            # Return bottom n% of weight magnitudes. Numpy argsort doesnt work on multidimensional arrays. 
             def abs_percentage_threshold(data):
-                return np.argsort(np.abs(data))[:int(len(data) * self.pruning_config['threshold'])]
+                return data.argsort()[:int(len(data) * self.pruning_config['threshold'])]
 
-            
+
+            weights_shape = weights.shape    
+            weights = np.abs(weights).reshape(-1)
             mask = np.ones(weights.shape)
+            
             locations = abs_percentage_threshold(weights)
             mask[locations] = 0
+            mask = mask.reshape(weights_shape)
+
             return mask
 
-
+        
         # Apply magnitude pruning schedule
         def apply_mask(weights, mask, epoch):
             return weights * mask
