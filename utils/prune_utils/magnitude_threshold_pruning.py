@@ -43,19 +43,12 @@ class schedule(tf.keras.callbacks.Callback):
             
             # Create new weight matrix and set new weights
             new_weights = []
-            masks = {}
             for idx, weights in enumerate(self.model.get_weights()):
 
 
                 layer_mask = get_mask(weights)
-#                 masks[idx] = layer_mask.tolist()
-                
                 pruned_weights = apply_mask(weights, layer_mask, epoch)
                 new_weights.append(pruned_weights)
-
-                
-#             with open("parameters/masks/test.json", "w") as write_file:
-#                 json.dump(masks, write_file)
 
             self.model.set_weights(new_weights)
 
