@@ -8,7 +8,7 @@ import utils.tf_utils.fully_connected
 from copy import deepcopy
 
 
-
+# Base tensorflow model creation and training procedure
 class model():
     
     def __init__(self, network_config, pruning_config):
@@ -17,11 +17,6 @@ class model():
         if 0 in network_config['layer_shapes']:
             raise ValueError('Each layer must have at least 1 unit')
             
-        if 'pretrained_path' in list(network_config.keys()):
-            self.pretrained_path = network_config['pretrained_path']
-        else: 
-            self.pretrained_path = None
-        
 
         self.loss = None
         self.network = None
@@ -31,6 +26,15 @@ class model():
         
         self.pruning_schedule = utils.prune_utils.initalise.scheduler(pruning_config)
         self.initialise_model()
+        
+        if 'pretrained_path' in list(network_config.keys()):
+            self.pretrained_path = network_config['pretrained_path']
+            self.load_weights(network_config['pretrained_path'])
+            
+        else: 
+            self.pretrained_path = None
+        
+        
         self.compile_model()
         
             
@@ -40,7 +44,6 @@ class model():
         
         if self.network_config['network_type'] == 'fully_connected':
             self.network =  utils.tf_utils.fully_connected.model(self.network_config)
-            
             
             
     # Load pretrained weights        
@@ -68,12 +71,18 @@ class model():
     def train(self, train_dataset):
         
         filepath="tmp/model-{epoch:02d}.hdf5"
-        saver_callback = utils.tf_utils.saver.save_callback(filepath, self.network_config['save_rate'])
+        model_saver_callback = utils.tf_utils.saver.save_callback(filepath, self.network_config['save_rate'])
+#         weight_saver_callback = utils.tf_utils.saver.save_weights(filepath)
+        
         
         history = self.network.fit(train_dataset,
                                    epochs=self.network_config['epochs'],
 #                                    batch_size = self.network_config['batch_size'],
-                                   callbacks=[self.pruning_schedule, saver_callback])
+                                   callbacks=[self.pruning_schedule,
+                                              model_saver_callback])
+#                                               weight_saver_callback])
+        
+        return history
         
         
         
