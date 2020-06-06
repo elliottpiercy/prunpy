@@ -22,6 +22,7 @@ class model():
         self.network = None
         self.optimiser = None
         self.network_config = network_config
+        self.pruning_config = pruning_config
         
         
         self.pruning_schedule = utils.prune_utils.initalise.scheduler(pruning_config)
@@ -70,17 +71,19 @@ class model():
     # Train model
     def train(self, train_dataset):
         
-        filepath="tmp/model-{epoch:02d}.hdf5"
-        model_saver_callback = utils.tf_utils.saver.save_callback(filepath, self.network_config['save_rate'])
-#         weight_saver_callback = utils.tf_utils.saver.save_weights(filepath)
+        
+        base_dir, model_dir, parameter_dir = utils.tf_utils.saver.create_directory(self.network_config, self.pruning_config)
+        
+        model_saver_callback = utils.tf_utils.saver.save_callback(model_dir, self.network_config['save_rate'])
+        weight_saver_callback = utils.tf_utils.saver.save_weights(parameter_dir,  self.network_config['save_rate'])
         
         
         history = self.network.fit(train_dataset,
                                    epochs=self.network_config['epochs'],
 #                                    batch_size = self.network_config['batch_size'],
                                    callbacks=[self.pruning_schedule,
-                                              model_saver_callback])
-#                                               weight_saver_callback])
+                                              model_saver_callback,
+                                              weight_saver_callback])
         
         return history
         
