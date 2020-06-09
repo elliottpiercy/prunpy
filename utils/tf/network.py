@@ -1,9 +1,9 @@
 import numpy as np
 import tensorflow as tf
-import utils.tf_utils.saver
-import utils.prune_utils.initalise
-import utils.tf_utils.build_network
-import utils.tf_utils.fully_connected
+import utils.prune.initalise
+import utils.tf.saver
+import utils.tf.build_network
+import utils.tf.fully_connected
 
 from copy import deepcopy
 
@@ -25,7 +25,7 @@ class model():
         self.pruning_config = pruning_config
         
         
-        self.pruning_schedule = utils.prune_utils.initalise.scheduler(pruning_config)
+        self.pruning_schedule = utils.prune.initalise.scheduler(pruning_config)
         self.initialise_model()
         
         if 'pretrained_path' in list(network_config.keys()):
@@ -44,7 +44,7 @@ class model():
     def initialise_model(self):
         
         if self.network_config['network_type'] == 'fully_connected':
-            self.network =  utils.tf_utils.fully_connected.model(self.network_config)
+            self.network =  utils.tf.fully_connected.model(self.network_config)
             
             
     # Load pretrained weights        
@@ -57,10 +57,10 @@ class model():
     # Compile model with optimiser and loss function    
     def compile_model(self):
         
-        opt = utils.tf_utils.build_network.optimiser(self.network_config['optimiser']).get_optimiser()
+        opt = utils.tf.build_network.optimiser(self.network_config['optimiser']).get_optimiser()
         self.optimiser = opt
         
-        loss_fn = utils.tf_utils.build_network.loss(self.network_config['loss']).get_loss_fn()
+        loss_fn = utils.tf.build_network.loss(self.network_config['loss']).get_loss_fn()
         self.loss = loss_fn
         
         self.network.compile(optimizer=opt,
@@ -72,10 +72,10 @@ class model():
     def train(self, train_dataset):
         
         
-        base_dir, model_dir, parameter_dir = utils.tf_utils.saver.create_directory(self.network_config, self.pruning_config)
+        base_dir, model_dir, parameter_dir = utils.tf.saver.create_directory(self.network_config, self.pruning_config)
         
-        model_saver_callback = utils.tf_utils.saver.save_callback(model_dir, self.network_config['save_rate'])
-        weight_saver_callback = utils.tf_utils.saver.save_weights(parameter_dir,  self.network_config['save_rate'])
+        model_saver_callback = utils.tf.saver.save_callback(model_dir, self.network_config['save_rate'])
+        weight_saver_callback = utils.tf.saver.save_weights(parameter_dir,  self.network_config['save_rate'])
         
         
         history = self.network.fit(train_dataset,
