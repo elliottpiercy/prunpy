@@ -20,7 +20,7 @@ class schedule(tf.keras.callbacks.Callback):
             raise ValueError('Percentage threshold must be between 0 and 1 (inclusive)')
 
             
-    def on_epoch_end(self, epoch, logs=None):
+    def on_epoch_begin(self, epoch, logs=None):
         
         # Update mask for weight vector based on new weights
         def get_mask(weights):

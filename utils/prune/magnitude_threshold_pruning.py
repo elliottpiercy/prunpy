@@ -16,7 +16,7 @@ class schedule(tf.keras.callbacks.Callback):
         self.pruning_config = pruning_config
     
     
-    def on_epoch_end(self, epoch, logs=None):
+    def on_epoch_begin(self, epoch, logs=None):
         
         # Update mask for weight vector based on new weights
         def get_mask(weights):
