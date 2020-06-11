@@ -50,6 +50,10 @@ class schedule(tf.keras.callbacks.Callback):
                 new_weights.append(pruned_weights)
 
             self.model.set_weights(new_weights)
+            
+        else:
+            self.model.masks = None
+            
 
         
         
