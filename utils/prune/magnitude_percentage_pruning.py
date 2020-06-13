@@ -61,12 +61,20 @@ class schedule(tf.keras.callbacks.Callback):
                 pruned_weights = apply_mask(weights, layer_mask, epoch)
                 new_weights.append(pruned_weights)
                 
-            self.model.masks = masks
             self.model.set_weights(new_weights)
             
             
         else:
-            self.model.masks = None
+            
+            masks = []
+            for weights in self.model.get_weights():
+                
+                layer_mask = np.ones(weights.shape)
+                masks.append(layer_mask)
+                
+                
+               
+        self.model.masks = masks
             
 
         

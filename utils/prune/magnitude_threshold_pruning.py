@@ -41,18 +41,29 @@ class schedule(tf.keras.callbacks.Callback):
         if self.pruning_config['threshold'] != 0 and epoch >= self.pruning_config['epoch_threshold']:
             
             # Create new weight matrix and set new weights
+            masks = []
             new_weights = []
             for idx, weights in enumerate(self.model.get_weights()):
 
-
+                
                 layer_mask = get_mask(weights)
+                masks.append(layer_mask)
+                
                 pruned_weights = apply_mask(weights, layer_mask, epoch)
                 new_weights.append(pruned_weights)
 
             self.model.set_weights(new_weights)
             
         else:
-            self.model.masks = None
+            
+            masks = []
+            for weights in self.model.get_weights():
+                
+                layer_mask = np.ones(weights.shape)
+                masks.append(layer_mask)
+                
+               
+        self.model.masks = masks
             
 
         

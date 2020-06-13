@@ -69,24 +69,14 @@ class save_masks(tf.keras.callbacks.Callback):
         
         if epoch % self.save_rate == 0:
 
+
+            layer_dict = {}
+            for layer_idx, layer in enumerate(self.model.masks):
+                layer_dict[layer_idx] = layer.tolist()
+
             save_path = self.save_path + 'mask-' + str(epoch).zfill(4) + '.json'
-            if epoch < self.epoch_threshold:
-            
-                mask_dict = {'masks': None}
-                with open(save_path, 'w') as outfile:
-                    json.dump(mask_dict, outfile)
-            
-            else:
-                
-                layer_dict = {}
-                for layer_idx, layer in enumerate(self.model.masks):
-                    layer_dict[layer_idx] = layer.tolist()
-
-                with open(save_path, 'w') as outfile:
-                    json.dump(layer_dict, outfile)
-
-            
-            
+            with open(save_path, 'w') as outfile:
+                json.dump(layer_dict, outfile)
             
             
 
