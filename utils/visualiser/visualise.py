@@ -65,10 +65,6 @@ def visualise(masks, save_path, validate_shapes=False):
             with g.subgraph(name=str(layer_idx)) as c:
 
                     the_label = 'layer_' + str(layer_idx)
-                    if layer_mask.shape[0] > max_nodes:
-    #                     continue
-                        raise ValueError('Too many nodes for this visualiser')
-
                     for node in range(layer_mask.shape[1]):
 
                         layer_nodes.append(str(n))
