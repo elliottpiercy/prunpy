@@ -1,41 +1,44 @@
-import os
-import json
 import glob
 import numpy as np
-import seaborn as sns
+import utils.visualiser.helper
 
 from PIL import Image
 from graphviz import Digraph
-
-
-# Return dictionary of masks for each epochs
-def get_masks(log_path):
-    
-    # Get sorted list of mask patahs
-    def get_masks_paths(masks_path):
-        return np.sort([masks_path + path for path in os.listdir(masks_path) if path.split('-')[0] == 'mask'])
-    
-    mask_path = log_path + 'parameters/'
-    mask_paths = get_masks_paths(mask_path)
-    
-    masks = {}
-    for epoch, path in enumerate(mask_paths):
-        with open(path, "r") as read_file:
-            data = json.load(read_file)
-            
-        masks[epoch] = data
         
-    return masks
 
+'''
+Main network visualisation functions.
+'''
+    
+# Create images and render gif using internal render function
+def render_gif(log_path, validate_shapes=True):
+    
+    
+    # Render gif and save to file        
+    def render(log_path):
 
-def _validate_shapes(masks, max_nodes):
-    raise NotImplementedError('Not yet implemented')
+        save_path = log_path + 'images/'
 
+        fp_in = save_path + "network/graph_*.png"
+        fp_out =  save_path + "network.gif"
 
-def visualise(masks, save_path, validate_shapes=False):
+        # https://pillow.readthedocs.io/en/stable/handbook/image-file-formats.html#gif
+        img, *imgs = [Image.open(f) for f in sorted(glob.glob(fp_in))]
+        img.save(fp=fp_out, format='GIF', append_images=imgs,
+                 save_all=True, duration=200, loop=0) 
+        
+        print('Gif rendered. Please see ' + fp_out + ' for the network gif.')
+        
+
+    
+    log_path = utils.visualiser.helper._validate_log_path(log_path)
+    
+    masks = utils.visualiser.helper.get_masks(log_path)
+    save_path = log_path + 'images/network/'
+
 
     if validate_shapes:
-        _validate_shapes(masks, max_nodes = 64)
+        utils.visualiser.helper._validate_shapes(masks, max_nodes = 64)
 
     for epoch in masks:
 
@@ -91,24 +94,7 @@ def visualise(masks, save_path, validate_shapes=False):
 
         g.render()
 
-        
-# Render gif and save to file        
-def render_gif(image_path):
-
-    fp_in = image_path + "graph_*.png"
-    fp_out =  image_path + "image.gif"
-
-    # https://pillow.readthedocs.io/en/stable/handbook/image-file-formats.html#gif
-    img, *imgs = [Image.open(f) for f in sorted(glob.glob(fp_in))]
-    img.save(fp=fp_out, format='GIF', append_images=imgs,
-             save_all=True, duration=200, loop=0)   
-    
-    
-if __name__ == "__main__":
+    # Finally render network gif
+    render(log_path)
   
     
-    log_path = 'logs/2020-06-14-21-42-45/'
-    masks = get_masks(log_path)
-
-    visualise(masks, 'images/')
-    render_gif('images/')

@@ -69,7 +69,6 @@ class save_masks(tf.keras.callbacks.Callback):
         
         if epoch % self.save_rate == 0:
 
-
             layer_dict = {}
             for layer_idx, layer in enumerate(self.model.masks):
                 layer_dict[layer_idx] = layer.tolist()
@@ -100,6 +99,7 @@ def load_model(filepath):
 
 
 
+
 # Create directory structure for saving logs/parameters/models
 def create_directory(network_config, pruning_config):
     
@@ -114,9 +114,17 @@ def create_directory(network_config, pruning_config):
 
     model_dir = base_dir + 'models/'
     parameter_dir = base_dir + 'parameters/'
+    image_dir = base_dir + 'images/'
+    network_image_dir = base_dir + 'images/network/'
+    distribution_image_dir = base_dir + 'images/distributions/'
+   
     
     os.mkdir(model_dir)
     os.mkdir(parameter_dir)
+    os.mkdir(image_dir)
+    os.mkdir(network_image_dir)
+    os.mkdir(distribution_image_dir)
+    
     
     
     print('Output saved to directory: ' + base_dir)
