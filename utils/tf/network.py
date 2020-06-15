@@ -7,6 +7,10 @@ import utils.tf.fully_connected
 
 from copy import deepcopy
 
+'''
+Main network initialisation script. Training procedure is universal to all networks.
+Models are pulled along with loss functions/activations etc to create and train nets
+'''
 
 # Base tensorflow model creation and training procedure
 class model():
