@@ -1,10 +1,34 @@
 import os
 import json
+import glob
 import numpy as np
+from PIL import Image
+
 
 '''
 Visualisation helper functions
 '''
+
+
+# Return dictionary of masks for each epochs
+def _get_weights(log_path):
+    
+    # Get sorted list of mask patahs
+    def get_masks_paths(weights_path):
+        return np.sort([weights_path + path for path in os.listdir(weights_path) if path.split('-')[0] == 'weights'])
+    
+    weights_path = log_path + 'parameters/'
+    weight_paths = get_masks_paths(weights_path)
+    
+    weights = {}
+    for epoch, path in enumerate(weight_paths):
+        with open(path, "r") as read_file:
+            data = json.load(read_file)
+            
+        weights[epoch] = data
+        
+    return weights
+
 
 # Return dictionary of masks for each epochs
 def get_masks(log_path):
@@ -25,6 +49,22 @@ def get_masks(log_path):
         
     return masks
 
+
+# Render gif and save to file        
+def _render(log_path, fp_in_extension, fp_out_extension):
+
+    # File in/out paths
+    fp_in = log_path + fp_in_extension
+    fp_out = log_path + fp_out_extension
+
+    # Load images for gif
+    img, *imgs = [Image.open(f) for f in sorted(glob.glob(fp_in))]
+    img.save(fp=fp_out, format='GIF', append_images=imgs,
+             save_all=True, duration=500, loop=0) 
+
+    print('Gif rendered. Please see ' + fp_out + ' for the gif.')
+        
+        
 
 # Validate network shapes. Raise error if there are too many units to render (omre than max nodes)
 def _validate_shapes(masks, max_nodes):
