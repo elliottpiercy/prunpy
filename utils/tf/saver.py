@@ -22,10 +22,14 @@ class save_weights(tf.keras.callbacks.Callback):
         
         
         if epoch % self.save_rate == 0:
-
+            
+            layer_idx = 0
             layer_dict = {}
-            for layer_idx, layer in enumerate(self.model.get_weights()):
-                layer_dict[layer_idx] = layer.tolist()
+            for layer in self.model.get_weights():
+                
+                if len(layer.shape) == 2:
+                    layer_dict[layer_idx] = layer.tolist()
+                    layer_idx += 1
                 
                 
             save_path = self.save_path + 'weights-' + str(epoch).zfill(4) + '.json'
@@ -47,7 +51,21 @@ class save_biases(tf.keras.callbacks.Callback):
         
     
     def on_epoch_end(self, epoch, logs=None):
-        raise NotImplementedError('Save biases callback is not yet implemented')
+        
+        if epoch % self.save_rate == 0:
+        
+            layer_idx = 0
+            layer_dict = {}
+            for layer in self.model.get_weights():
+                
+                if len(layer.shape) == 1:
+                    layer_dict[layer_idx] = layer.tolist()
+                    layer_idx += 1
+                
+                
+            save_path = self.save_path + 'biases-' + str(epoch).zfill(4) + '.json'
+            with open(save_path, 'w') as outfile:
+                json.dump(layer_dict, outfile)
 
         
 

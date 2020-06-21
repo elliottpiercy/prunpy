@@ -80,6 +80,8 @@ class model():
         
         model_saver_callback = utils.tf.saver.save_callback(model_dir, self.network_config['save_rate'])
         weight_saver_callback = utils.tf.saver.save_weights(parameter_dir,  self.network_config['save_rate'])
+        bias_saver_callback = utils.tf.saver.save_biases(parameter_dir,  self.network_config['save_rate'])
+        
         mask_saver_callback = utils.tf.saver.save_masks(parameter_dir,  
                                                         self.network_config['save_rate'], 
                                                         self.pruning_config['epoch_threshold'])
@@ -87,10 +89,10 @@ class model():
         
         history = self.network.fit(train_dataset,
                                    epochs=self.network_config['epochs'],
-#                                    batch_size = self.network_config['batch_size'],
                                    callbacks=[self.pruning_schedule,
                                               model_saver_callback,
                                               weight_saver_callback,
+                                              bias_saver_callback,
                                               mask_saver_callback])
         
         return history
