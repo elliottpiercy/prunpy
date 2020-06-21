@@ -63,8 +63,24 @@ def _render(log_path, fp_in_extension, fp_out_extension):
              save_all=True, duration=500, loop=0) 
 
     print('Gif rendered. Please see ' + fp_out + ' for the gif.')
-        
-        
+  
+
+# Return max and min weights. eps=value added to the max/min bounds (for visualisation)
+def _get_weight_bounds(weights, eps = 0.1):
+
+    max_weight = 0
+    min_weight = 0
+    for epoch in weights:
+        for layer in weights[epoch]:
+
+            if np.max(weights[epoch][layer]) > max_weight:
+                max_weight = np.max(weights[epoch][layer])
+
+            if np.min(weights[epoch][layer]) < min_weight:
+                min_weight = np.min(weights[epoch][layer])
+
+    return min_weight-eps, max_weight+eps
+
 
 # Validate network shapes. Raise error if there are too many units to render (omre than max nodes)
 def _validate_shapes(masks, max_nodes):

@@ -84,35 +84,34 @@ def render_network_gif(log_path, validate_shapes=True):
     fp_out_extension = 'images/network.gif'
     utils.visualiser.helper._render(log_path, fp_in_extension, fp_out_extension)
   
+
     
 # Create images and render distribution gif showing weight distribution for specific layer while training
 def render_distribution_gif(log_path, layer_to_vis):
     
-    weights = utils.visualiser.helper._get_weights(log_path)    
+    weights = utils.visualiser.helper._get_weights(log_path)  
+    x_lim_min, x_lim_max = utils.visualiser.helper._get_weight_bounds(weights, eps = 0.1)
+    y_lim_min = 0
+    y_lim_max = 10
     
     save_path = log_path + 'images/distributions/' + 'layer_' + str(layer_to_vis) + '/'
     if not os.path.isdir(save_path):
         os.mkdir(save_path)
+    
     
     for epoch_idx, epoch in enumerate(weights):
 
         layer_weights = weights[epoch][str(layer_to_vis)]
         filename = save_path + str(epoch).zfill(4) + '.png'
         title = 'Layer ' + str(layer_to_vis) + ' epoch ' + str(epoch_idx)
-
+          
+         
         # Visualise first plot and get bounds in exception
-        try:
-
-            sns_plot = sns.distplot(np.array(layer_weights).reshape(-1), color="b")
-            plt.xlim(right=xlim[1]) #xmax is your value
-            plt.xlim(left=xlim[0]) #xmin is your value
-            plt.ylim(top=ylim[1]) #ymax is your value
-            plt.ylim(bottom=ylim[0]) #ylim is your value
-
-        except:
-            sns_plot = sns.distplot(np.array(layer_weights).reshape(-1))
-            xlim = sns_plot.get_xlim()
-            ylim = sns_plot.get_ylim()
+        sns_plot = sns.distplot(np.array(layer_weights).reshape(-1), color="b")
+        plt.xlim(right=x_lim_max) #xmax is your value
+        plt.xlim(left=x_lim_min) #xmin is your value
+        plt.ylim(top=y_lim_max) #ymax is your value
+        plt.ylim(bottom=y_lim_min) #ylim is your value
 
         
         plt.xlabel('Weights')
