@@ -41,7 +41,6 @@ class model():
         
         
         self.compile_model()
-        
             
         
     # Intialise layers
