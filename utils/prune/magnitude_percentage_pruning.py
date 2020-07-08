@@ -44,7 +44,7 @@ class schedule(tf.keras.callbacks.Callback):
 
         
         # Apply magnitude pruning schedule
-        def apply_layer_mask(weights, mask, epoch):
+        def apply_layer_mask(weights, mask):
             return weights * mask
         
         
@@ -60,7 +60,7 @@ class schedule(tf.keras.callbacks.Callback):
                 layer_mask = get_layer_mask(weights, sparsity)
                 masks.append(layer_mask)
 
-                pruned_weights = apply_layer_mask(weights, layer_mask, epoch)
+                pruned_weights = apply_layer_mask(weights, layer_mask)
                 new_weights.append(pruned_weights)
                     
             return new_weights, masks   

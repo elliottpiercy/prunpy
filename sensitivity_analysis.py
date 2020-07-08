@@ -20,6 +20,7 @@ optimiser = {'name': 'RMSProp',
              'learning_rate': 0.001
             }
 
+
 loss = {'name':'CategoricalCrossentropy',
         'from_logits': True
        }
@@ -58,7 +59,6 @@ def analysis(sparsity_list):
 
         network = utils.tf.network.model(network_config, pruning_config)
         history = network.train(train_dataset)
-        
         
         results['sparsity'].append(sparsity)
         results['accuracy'].append(np.max(history.history['accuracy']))

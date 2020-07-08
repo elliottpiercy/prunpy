@@ -104,6 +104,7 @@ class model():
         return test_loss, test_acc
         
         
+        
     # Predict output for new data (test_data)
     def predict(self, dataset):
         return self.network.predict(dataset.test.x)
