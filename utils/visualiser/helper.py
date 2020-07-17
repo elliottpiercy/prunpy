@@ -1,4 +1,5 @@
 import os
+import cv2
 import json
 import glob
 import numpy as np
@@ -106,3 +107,23 @@ def _validate_log_path(path):
         return path + '/'
     else:
         return path
+    
+    
+    
+# Give each rendered image an epoch counter 
+def _label_image(path, epoch):
+
+    image = cv2.imread(path)
+    label = 'Epoch ' + str(epoch)
+
+    position = (image.shape[1]-300,image.shape[0]-200)
+    img = cv2.putText(
+         image, #numpy array on which text is written
+         label, #text
+         position, #position at which writing has to start
+         cv2.FONT_HERSHEY_SIMPLEX, #font family
+         1, #font size
+         (0, 0, 0, 0), #font color
+         3) #font stroke
+    
+    cv2.imwrite(path, image)

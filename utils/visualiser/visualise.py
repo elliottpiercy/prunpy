@@ -80,7 +80,9 @@ def render_network_gif(log_path, validate_shapes=True):
                                         g.edge(str(previous_node), str(current_node), style="invis")
                                     else:
                                         g.edge(str(previous_node), str(current_node))
+                                        
             g.render()
+            utils.visualiser.helper._label_image(filename + '.png', epoch)
         
 
     # Finally render network gif
