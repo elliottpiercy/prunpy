@@ -82,11 +82,13 @@ class save_masks(tf.keras.callbacks.Callback):
         self.save_rate = save_rate
         self.epoch_threshold = epoch_threshold
         
+        
+        
     
     def on_epoch_end(self, epoch, logs=None):
         
         if epoch % self.save_rate == 0:
-
+            
             layer_dict = {}
             for layer_idx, layer in enumerate(self.model.masks):
                 layer_dict[layer_idx] = layer.tolist()
