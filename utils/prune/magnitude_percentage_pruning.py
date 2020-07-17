@@ -1,5 +1,6 @@
 import numpy as np
 import tensorflow as tf
+import utils.prune.helper
 
 """
 Magnitude percentage weight pruning schedule - Mask all weights that are within the percentage threshold.
@@ -17,8 +18,7 @@ class schedule(tf.keras.callbacks.Callback):
         self.pruning_config = pruning_config
         self.mask_exists = False
         self.gradual_counter = 1
-        
-#         self.model.masks = None
+        self.valid_layers = 'dense'
             
         if pruning_config['threshold'] < 0  or pruning_config['threshold'] > 1:
             raise ValueError('Percentage threshold must be between 0 and 1 (inclusive)')
@@ -38,7 +38,7 @@ class schedule(tf.keras.callbacks.Callback):
     
     
     # Update mask for weight vector based on new weights
-    def get_layer_mask(self, weights, sparsity):
+    def get_layer_mask(self, weights, sparsity, ID):
 
         # Return bottom n% of weight magnitudes. Numpy argsort doesnt work on multidimensional arrays. 
         def abs_percentage_threshold(data, sparsity):
@@ -48,11 +48,13 @@ class schedule(tf.keras.callbacks.Callback):
         weights_shape = weights.shape    
         weights = np.abs(weights).reshape(-1)
         mask = np.ones(weights.shape)
-
-        locations = abs_percentage_threshold(weights, sparsity)
-        mask[locations] = 0
+        
+        # If the layer is a valid layer to prune. Locate indexs to mask. Otherwise keep mask of 1s (no pruning)
+        if utils.prune.helper._validate_layer(ID, self.valid_layers):
+            locations = abs_percentage_threshold(weights, sparsity)
+            mask[locations] = 0
+        
         mask = mask.reshape(weights_shape)
-
         return mask
 
             
@@ -67,14 +69,15 @@ class schedule(tf.keras.callbacks.Callback):
 
         masks = []
         new_weights = []
-        for weights in self.model.get_weights():
+        for layer, weights in zip(self.model.layers, self.model.get_weights()):
 
 
-            layer_mask = self.get_layer_mask(weights, sparsity)
+            layer_mask = self.get_layer_mask(weights, sparsity, layer.name)
             masks.append(layer_mask)
 
             pruned_weights = self.apply_layer_mask(weights, layer_mask)
             new_weights.append(pruned_weights)
+
 
         return new_weights, masks   
 

@@ -9,7 +9,7 @@ def model(network_config):
     if 'seed' not in list(network_config.keys()):
         network_config['seed'] = np.random.randint(0, 99999)
             
-    layers = [tf.keras.layers.Flatten(input_shape=network_config['input_shape'], name='flatten_1')]  
+    layers = [tf.keras.layers.Flatten(input_shape=network_config['input_shape'], name='dense_flatten_1')]  
     
     dense_counter = 0
     dropout_counter = 0
@@ -24,7 +24,7 @@ def model(network_config):
         
         
         if 'dropout_rate' in list(network_config.keys()):
-            layer_name = 'dropout_' + str(dropout_counter)
+            layer_name = 'dense_dropout_' + str(dropout_counter)
             layers.append(tf.keras.layers.Dropout(network_config['dropout_rate'], 
                                                   name = layer_name))
             dropout_counter += 1
