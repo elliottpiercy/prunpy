@@ -3,7 +3,7 @@ import tensorflow as tf
 import utils.prune.initalise
 import utils.tf.saver
 import utils.tf.build_network
-import utils.tf.fully_connected
+import models.fully_connected
 
 from copy import deepcopy
 
@@ -47,7 +47,7 @@ class model():
     def initialise_model(self):
         
         if self.network_config['network_type'] == 'fully_connected':
-            self.network =  utils.tf.fully_connected.model(self.network_config)
+            self.network =  models.fully_connected.model(self.network_config)
             
             
     # Load pretrained weights        

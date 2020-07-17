@@ -40,3 +40,4 @@ def model(network_config):
     #     layers.append(tf.keras.layers.Softmax())
     model = tf.keras.models.Sequential(layers)
     return model
+
