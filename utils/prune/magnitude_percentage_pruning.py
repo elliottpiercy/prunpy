@@ -97,18 +97,20 @@ class schedule(tf.keras.callbacks.Callback):
                 
                 if self.mask_exists:
                     masks = self.model.masks 
+                    sparsity = self.model.sparsity
                 
                 else:
- 
-                    new_weights, masks = self.get_masked_weights(self.pruning_config['threshold'])
+                    
+                    sparsity = self.pruning_config['threshold']
+                    new_weights, masks = self.get_masked_weights(sparsity)
                     self.model.set_weights(new_weights)
                     self.mask_exists = True
             
                 
             elif self.pruning_config['function'] == 'one_shot':
              
-
-                new_weights, masks = self.get_masked_weights(self.pruning_config['threshold'])
+                sparsity = self.pruning_config['threshold']
+                new_weights, masks = self.get_masked_weights(sparsity)
                 self.model.set_weights(new_weights)
             
             
@@ -137,7 +139,9 @@ class schedule(tf.keras.callbacks.Callback):
 
         else:
             masks = self.create_ones_mask()
+            sparsity = 0
             
             
         self.model.masks = masks
+        self.model.sparsity = sparsity
                  

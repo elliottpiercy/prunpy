@@ -113,7 +113,6 @@ class schedule(tf.keras.callbacks.Callback):
             if self.model.history.history['accuracy'][-1] >= (self.target_accuracy - self.pruning_config['eps']):
                 print(self.model.history.history['accuracy'][-1], (self.target_accuracy - self.pruning_config['eps']))
                 
-                print('Inside loop')
                 # Learning rate rewinding
                 print('Reset learning rate')
                 self.reset_learning_rate()
@@ -134,17 +133,21 @@ class schedule(tf.keras.callbacks.Callback):
                 
                 
                 
+                
 
             print('Pruning using existing mask')
             new_weights = self.get_masked_weights(self.masks)
             self.model.set_weights(new_weights)
+            sparsity = self.rolling_sparsity
 
 
     
         else:
             self.masks = self.create_ones_mask()
+            sparsity = 0
             
             
         self.model.masks = self.masks
+        self.model.sparsity = sparsity
             
                 

@@ -73,15 +73,13 @@ class save_biases(tf.keras.callbacks.Callback):
 # Save masks tf callback            
 class save_masks(tf.keras.callbacks.Callback):
     
-    def __init__(self, save_path, save_rate, epoch_threshold):
+    def __init__(self, save_path, save_rate):
         
         if save_rate == 'epoch':
             save_rate = 1
             
         self.save_path = save_path
         self.save_rate = save_rate
-        self.epoch_threshold = epoch_threshold
-        
         
         
     
@@ -98,11 +96,50 @@ class save_masks(tf.keras.callbacks.Callback):
                 json.dump(layer_dict, outfile)
             
             
+            
+# Save pruning sparsity
+class save_sparsity(tf.keras.callbacks.Callback):
+    
+    
+    def __init__(self, save_path, save_rate):
+        
+        if save_rate == 'epoch':
+            save_rate = 1
+            
+        self.save_path = save_path
+        self.save_rate = save_rate
+        
+        
+    def on_epoch_end(self, epoch, logs=None):
+        
+            save_path = self.save_path + 'sparsity-' + str(epoch).zfill(4) + '.json'
+            with open(save_path, 'w') as outfile:
+                json.dump({'sparsity': self.model.sparsity}, outfile)        
+            
+            
+            
+            
+# Save model loss and accuracy to file. The history json gets overwritten each epoch
+class save_history(tf.keras.callbacks.Callback):
+    
+    
+    def __init__(self, save_path):
+        self.save_path = save_path
+        
+        
+    def on_epoch_end(self, epoch, logs=None):
+        
+            save_path = self.save_path + 'history.json'
+            with open(save_path, 'w') as outfile:
+                json.dump(self.model.history.history, outfile)
 
                 
+               
+    
+    
 
 # Write model to file
-def save_callback(filepath, save_frequency):
+def save_model(filepath, save_frequency):
     
     filepath += 'model-{epoch:04d}.hdf5'
     save_callback = tf.keras.callbacks.ModelCheckpoint(filepath, monitor='val_accuracy', verbose=1,
@@ -111,12 +148,10 @@ def save_callback(filepath, save_frequency):
     return save_callback
 
 
-    
+
 # Restore model
 def load_model(filepath):
     return tf.keras.models.load_model(filepath, custom_objects=None, compile=True)
-
-
 
 
 
@@ -137,7 +172,7 @@ def create_directory(network_config, pruning_config):
     image_dir = base_dir + 'images/'
     network_image_dir = base_dir + 'images/network/'
     distribution_image_dir = base_dir + 'images/distributions/'
-   
+    
     
     os.mkdir(model_dir)
     os.mkdir(parameter_dir)
@@ -146,9 +181,7 @@ def create_directory(network_config, pruning_config):
     os.mkdir(distribution_image_dir)
     
     
-    
     print('Output saved to directory: ' + base_dir)
-    
     return base_dir, model_dir, parameter_dir
 
 
