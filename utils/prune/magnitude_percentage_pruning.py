@@ -92,7 +92,6 @@ class schedule(tf.keras.callbacks.Callback):
             
             
             
-            
             if self.pruning_config['function'] == 'one_shot_static':
                 
                 if self.mask_exists:
