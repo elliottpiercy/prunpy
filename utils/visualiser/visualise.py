@@ -18,7 +18,11 @@ def render_network_gif(log_path, validate_shapes=True):
     
     log_path = utils.visualiser.helper._validate_log_path(log_path)
     
-    masks = utils.visualiser.helper.get_masks(log_path)
+    masks = utils.visualiser.helper._get_masks(log_path)
+    history = utils.visualiser.helper._get_history(log_path)
+    history_length = len(history[list(history.keys())[0]])
+    sparsity = utils.visualiser.helper._get_sparsity(log_path)
+
     save_path = log_path + 'images/network/'
 
 
@@ -26,9 +30,9 @@ def render_network_gif(log_path, validate_shapes=True):
     if validate_shapes:
         utils.visualiser.helper._validate_shapes(masks, max_nodes = 64)
 
-    with tqdm(total = len(masks.keys())) as pbar:
+    with tqdm(total = history_length) as pbar:
         
-        for epoch in masks:
+        for epoch in range(history_length):
             pbar.update(1)
             
 
@@ -82,7 +86,7 @@ def render_network_gif(log_path, validate_shapes=True):
                                         g.edge(str(previous_node), str(current_node))
                                         
             g.render()
-            utils.visualiser.helper._label_image(filename + '.png', epoch)
+            utils.visualiser.helper._label_image(filename + '.png', epoch, history, sparsity)
         
 
     # Finally render network gif

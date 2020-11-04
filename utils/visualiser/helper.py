@@ -32,7 +32,7 @@ def _get_weights(log_path):
 
 
 # Return dictionary of masks for each epochs
-def get_masks(log_path):
+def _get_masks(log_path):
     
     # Get sorted list of mask patahs
     def get_masks_paths(masks_path):
@@ -49,6 +49,35 @@ def get_masks(log_path):
         masks[epoch] = data
         
     return masks
+
+
+# Return network loss and accuracy (model.history.history)
+def _get_history(log_path):
+    
+    log_path += 'history.json'
+    with open(log_path, "r") as read_file:
+            history = json.load(read_file)
+    return history
+    
+    
+# Return dictionary of sparsity value for each epochs
+def _get_sparsity(log_path):
+    
+    # Get sorted list of mask patahs
+    def get_sparsity_paths(sparsity_paths):
+        return np.sort([sparsity_paths + path for path in os.listdir(sparsity_paths) if path.split('-')[0] == 'sparsity'])
+    
+    sparsity_path = log_path + 'parameters/'
+    sparsity_paths = get_sparsity_paths(sparsity_path)
+    
+    sparsity = {}
+    for epoch, path in enumerate(sparsity_paths):
+        with open(path, "r") as read_file:
+            data = json.load(read_file)
+            
+        sparsity[epoch] = data
+        
+    return sparsity
 
 
 # Render gif and save to file        
@@ -110,20 +139,34 @@ def _validate_log_path(path):
     
     
     
+
 # Give each rendered image an epoch counter 
-def _label_image(path, epoch):
+def _label_image(path, epoch, history, sparsity):
+    
+    loss = np.round(history['loss'][epoch], 3)
+    accuracy = np.round(history['accuracy'][epoch], 3)
+    sparsity = np.round(sparsity[epoch]['sparsity'], 3)
 
     image = cv2.imread(path)
-    label = 'Epoch ' + str(epoch)
+    labels = ['Epoch: ' + str(epoch),
+              'Loss: ' + str(loss),
+              'Accuracy: ' + str(accuracy),
+              'Sparsity: ' + str(sparsity)]
+    
+    dy = 50
+    for i, line in enumerate(labels):
+        
+        x_position = image.shape[1]-300# 
+        y_position =image.shape[0]-200 + (dy * i)
+        position = (x_position, y_position)
 
-    position = (image.shape[1]-300,image.shape[0]-200)
-    img = cv2.putText(
-         image, #numpy array on which text is written
-         label, #text
-         position, #position at which writing has to start
-         cv2.FONT_HERSHEY_SIMPLEX, #font family
-         1, #font size
-         (0, 0, 0, 0), #font color
-         3) #font stroke
+        img = cv2.putText(
+             image, #numpy array on which text is written
+             line, #text
+             position, #position at which writing has to start
+             cv2.FONT_HERSHEY_SIMPLEX, #font family
+             1, #font size
+             (0, 0, 0, 0), #font color
+             3) #font stroke
     
     cv2.imwrite(path, image)
