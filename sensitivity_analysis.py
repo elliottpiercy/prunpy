@@ -1,6 +1,9 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+
 import utils.tf.network
 import utils.dataset.examples
-import matplotlib.pyplot as plt
 
 
 dataset_config = {'dataset': 'mnist',
@@ -11,8 +14,9 @@ dataset_config = {'dataset': 'mnist',
 
 
 pruning_config = {'schedule_type': 'magnitude_percentage',
+                  'function': 'one_shot_static',
                   'threshold': None,
-                  'epoch_threshold': 0}
+                  'epoch_threshold': 5}
 
 
 
@@ -29,7 +33,7 @@ loss = {'name':'CategoricalCrossentropy',
 network_config = {'network_type': 'fully_connected',
                   'input_shape': (28, 28),
                   'seed': 5,
-                  'layer_shapes': [128],
+                  'layer_shapes': [32, 32],
                   'n_classes': 10,
                   'activation': 'relu',
                   'epochs': 10,
@@ -42,32 +46,31 @@ network_config = {'network_type': 'fully_connected',
                  }
 
 
+sparsity_list = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6 ,0.7, 0.8, 0.9]
 
 
 # Simple sensitivity analysis
-def analysis(sparsity_list):
-    
+def analysis(sparsity_list, network_config, pruning_config):
     
     results = {}
     results['sparsity'] = []
     results['accuracy']  = []
     for sparsity in sparsity_list:
         
-        pruning_config['threshold'] = sparsity
-
+        pruning_config['threshold'] = sparsity       
         train_dataset, test_dataset = utils.dataset.examples.get_dataset(dataset_config)
 
         network = utils.tf.network.model(network_config, pruning_config)
         history = network.train(train_dataset)
         
         results['sparsity'].append(sparsity)
-        results['accuracy'].append(np.max(history.history['accuracy']))
+        results['accuracy'].append(np.max(history.history['accuracy'][-pruning_config['epoch_threshold']:]))
         
     return results
     
 
     
-results = analysis([0.1, 0.2, 0.3, 0.4, 0.5, 0.6 ,0.7, 0.8, 0.9])
+results = analysis(sparsity_list, network_config, pruning_config)
 
 plt.plot(results['sparsity'], results['accuracy'])
 plt.show()
