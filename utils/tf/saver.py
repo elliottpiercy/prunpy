@@ -87,6 +87,8 @@ class save_masks(tf.keras.callbacks.Callback):
         
         if epoch % self.save_rate == 0:
             
+            print('Saving: ' + str(epoch))
+            
             layer_dict = {}
             for layer_idx, layer in enumerate(self.model.masks):
                 layer_dict[layer_idx] = layer.tolist()
@@ -94,6 +96,7 @@ class save_masks(tf.keras.callbacks.Callback):
             save_path = self.save_path + 'mask-' + str(epoch).zfill(4) + '.json'
             with open(save_path, 'w') as outfile:
                 json.dump(layer_dict, outfile)
+            
             
             
             
@@ -127,14 +130,12 @@ class save_history(tf.keras.callbacks.Callback):
         self.save_path = save_path
         
         
-    def on_epoch_end(self, epoch, logs=None):
+    def on_epoch_begin(self, epoch, logs=None):
         
             save_path = self.save_path + 'history.json'
             with open(save_path, 'w') as outfile:
                 json.dump(self.model.history.history, outfile)
 
-                
-               
     
     
 
@@ -145,6 +146,7 @@ def save_model(filepath, save_frequency):
     save_callback = tf.keras.callbacks.ModelCheckpoint(filepath, monitor='val_accuracy', verbose=1,
                                                         save_best_only=False, save_weights_only=False,
                                                         save_frequency=save_frequency)
+    
     return save_callback
 
 

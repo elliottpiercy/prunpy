@@ -1,9 +1,15 @@
 import numpy as np
 import tensorflow as tf
+
 import utils.prune.initalise
+
 import utils.tf.saver
 import utils.tf.build_network
+import utils.tf.learning_rate_schedules.initialise
+
 import models.fully_connected
+import models.cnn
+
 
 from copy import deepcopy
 
@@ -49,6 +55,9 @@ class model():
         if self.network_config['network_type'] == 'fully_connected':
             self.network =  models.fully_connected.model(self.network_config)
             
+        elif self.network_config['network_type'] == 'cnn':
+            self.network =  models.cnn.model(self.network_config)
+            
             
     # Load pretrained weights        
     def load_weights(self, pretrained_model):
@@ -85,6 +94,8 @@ class model():
         mask_saver_callback = utils.tf.saver.save_masks(parameter_dir, self.network_config['save_rate'])
         sparsity_saver_callback = utils.tf.saver.save_sparsity(parameter_dir, self.network_config['save_rate'])
         
+#         learning_rate_callback = utils.tf.learning_rate_schedules.initialise.scheduler(self.network_config['learning_rate'])
+        
         
         history = self.network.fit(train_dataset,
                                    epochs=self.network_config['epochs'],
@@ -94,7 +105,8 @@ class model():
                                               bias_saver_callback,
                                               mask_saver_callback,
                                               sparsity_saver_callback,
-                                              history_saver_callback])
+                                              history_saver_callback])#,
+                                            #  learning_rate_callback.schedule])
         
         return history
         
