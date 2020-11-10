@@ -92,7 +92,7 @@ Coming soon.
 
 ### Visualisation
 
-CNN visualiser to be completed.
+Coming soon.
 
 
 
@@ -100,4 +100,8 @@ CNN visualiser to be completed.
 # Senstivity analysis
 
 
+Analysis of accuracy against sparsity can be computed for each pruning schedule by changing the relevant configurations in the sensitivity_analysis.py script. An example of the output can be seen below which was computed using the configuration on the github repo.
+
+
+<div style="text-align:center"><img src=".readme/sensitivity_analysis.jpg" width="500" height="333"/> 
 

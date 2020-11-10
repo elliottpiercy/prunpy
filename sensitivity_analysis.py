@@ -14,9 +14,10 @@ dataset_config = {'dataset': 'mnist',
 
 
 pruning_config = {'schedule_type': 'magnitude_percentage',
-                  'function': 'one_shot_static',
+                  'function': 'gradual',
+                  'converge_over': 25,
                   'threshold': None,
-                  'epoch_threshold': 5}
+                  'epoch_threshold': 10}
 
 
 
@@ -36,11 +37,11 @@ network_config = {'network_type': 'fully_connected',
                   'layer_shapes': [32, 32],
                   'n_classes': 10,
                   'activation': 'relu',
-                  'epochs': 10,
+                  'epochs': 50,
                   'dropout_rate': 0.2,
                   'save_rate': 'epoch',
                   'batch_size': 128,
-                  'pretrained_path': 'pretrained/mnist.hdf5', 
+#                   'pretrained_path': 'pretrained/mnist.hdf5', 
                   'optimiser': optimiser,
                   'loss': loss
                  }
@@ -72,5 +73,10 @@ def analysis(sparsity_list, network_config, pruning_config):
     
 results = analysis(sparsity_list, network_config, pruning_config)
 
+
 plt.plot(results['sparsity'], results['accuracy'])
-plt.show()
+plt.title('Sensitivity Analysis')
+plt.xlabel('Sparsity')
+plt.ylabel('Accuracy')
+plt.savefig('sensitivity_analysis.jpg')
+
